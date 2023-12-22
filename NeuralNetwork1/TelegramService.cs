@@ -29,7 +29,7 @@ namespace NeuralNetwork1
 
         private UpdateTLGMessages formUpdater;
         private readonly AIMLService aimlService = new AIMLService();
-       // private readonly NeuralNetworkService networkService;
+        private readonly NeuralNetworkService networkService;
         private BaseNetwork perseptron = null;
         private DatasetProcessor dataset = new DatasetProcessor();
         private string lastRecognizedLetter = "none";
@@ -48,6 +48,7 @@ namespace NeuralNetwork1
             client = new Telegram.Bot.TelegramBotClient(botKey);
             formUpdater = updater;
             perseptron = net;
+            networkService = new NeuralNetworkService();
             dialogMode = new Dictionary<long, ChatMode>();
             client.StartReceiving(HandleUpdateMessageAsync, HandleErrorAsync, new ReceiverOptions
             {   // Подписываемся только на сообщения
@@ -214,8 +215,9 @@ cancellationToken: cts.Token);
 
                 System.Drawing.Bitmap bm = new System.Drawing.Bitmap(img);
                 
-                Processor.ProcessImage(bm);
-                var p = DatasetProcessor.LetterTypeToString(Processor.currentType);
+               // Processor.ProcessImage(bm);
+                //var p = DatasetProcessor.LetterTypeToString(Processor.currentType);
+                var p = DatasetProcessor.LetterTypeToString(networkService.predict(bm));
                 await botClient.SendTextMessageAsync(
                      chatId: chatId,
                      text: aimlService.Talk(chatId, username, $"предсказываю {p}"),

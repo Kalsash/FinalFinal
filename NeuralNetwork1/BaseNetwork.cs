@@ -36,7 +36,7 @@ namespace NeuralNetwork1
         /// </summary>
         /// <param name="input">Входные данные для первого слоя</param>
         /// <returns></returns>
-        protected abstract double[] Compute(double[] input);
+        public abstract double[] Compute(double[] input);
 
         /// <summary>
         /// Угадывает тип фигуры на основе результатов подсчётов сети.

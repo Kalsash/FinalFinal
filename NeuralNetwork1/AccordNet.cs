@@ -106,7 +106,7 @@ namespace NeuralNetwork1
             return error;
         }
 
-        protected override double[] Compute(double[] input)
+        public override double[] Compute(double[] input)
         {
             return network.Compute(input);
         }

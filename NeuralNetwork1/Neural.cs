@@ -139,7 +139,6 @@ namespace NeuralNetwork1
             return actualClass == recognizedClass;
         }
     }
-
     /// <summary>
     /// Выборка образов. Могут быть как классифицированные (обучающая, тестовая выборки), так и не классифицированные (обработка)
     /// </summary>

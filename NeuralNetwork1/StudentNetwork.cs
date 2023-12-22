@@ -1,22 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
+using ProtoBuf;
 namespace NeuralNetwork1
 {
+    [ProtoContract]
     class Neuron
     {
-        public static Func<double, double> activationFunction; // активационная функция
-        public static Func<double, double> activationFunctionDerivative; // ее производная
-
+        public static Func<double, double> activationFunction;
+        public static Func<double, double> activationFunctionDerivative;
+        [ProtoMember(1)]
         public int id;
+        [ProtoMember(2)]
         public double Output;
-        public int layer; // номер слоя
+        [ProtoMember(3)]
+        public int layer;
 
+        [ProtoMember(4)]
         public double error;
 
         // Веса связей от предыдущего слоя, где 0 элемент - bias, остальные - нейроны прошлого слоя в произвольном порядке (т.к. сеть полносвязная)
+        [ProtoMember(5)]
         public double[] weightsToPrevLayer;
 
         public void setInput(double input)
@@ -29,52 +35,119 @@ namespace NeuralNetwork1
 
             Output = activationFunction(input);
         }
+        // public double Output
+        // {
+        //     get
+        //     {
+        //         if (layer == -1)
+        //         {
+        //             return 1;
+        //         }
+        //
+        //         if (layer == 0)
+        //         {
+        //             return input;
+        //         }
+        //
+        //         return activationFunction(input);
+        //     }
+        // }
 
         public Neuron(int id, int layer, int prevLayerCapacity, Random random)
         {
             this.id = id;
             this.layer = layer;
             this.error = 0;
-            // Bias стабильно выдаёт 1 
-            if (layer == -1)//нейрон находится на байас слое
+            // Bias стабильно выдаёт 1
+            if (layer == -1)
             {
                 Output = 1;
             }
 
+
             // Веса с байасами инициализируем для всех слоёв, кроме входного и самого байаса
-            if (layer < 1)// нейрон находится на входном или байес слое
+            if (layer < 1)
             {
                 weightsToPrevLayer = null;
             }
-            else // нейрон находится на скрытом или выходном слое
+            else
             {
                 weightsToPrevLayer = new double[prevLayerCapacity + 1];
                 for (int i = 0; i < weightsToPrevLayer.Length; i++)
                 {
-                    //веса связей с предыдущим слоем
                     weightsToPrevLayer[i] = random.NextDouble() * 2 - 1;
                 }
             }
         }
+
+        public Neuron()
+        {
+        }
+    }
+    [ProtoContract]
+    class Layer
+    {
+        [ProtoMember(1)]
+        public Neuron[] neurons;
+
+        public Neuron this[int index]
+        {
+            get => neurons[index];
+            set => neurons[index] = value;
+        }
+
+        public Layer(int capacity)
+        {
+            neurons = new Neuron[capacity];
+        }
+
+        public Layer()
+        {
+        }
+
+        public int Length => neurons.Length;
+
+        public IEnumerable<Neuron> Select(Func<Neuron, Neuron> selector) => neurons.Select(selector);
+        public IEnumerable<double> Select(Func<Neuron, double> selector) => neurons.Select(selector);
     }
 
-    public class StudentNetwork : BaseNetwork
+    [ProtoContract]
+    public class StudentNetwork
     {
-        private const int hiddenLayersCount = 2;// количество скрытых слоев
-        private const double learningRate = 0.1; //скорость обучения
-
+        [ProtoMember(1)]
+        private const double learningRate = 0.1;
+        [ProtoMember(2)]
         private Neuron biasNeuron;
-        private List<Neuron[]> layers;
-        //Функция потерь измеряет разницу между прогнозируемыми и
-        //целевыми значениями и используется в процессе обучения для настройки весов нейронов.
-        private Func<double[], double[], double> lossFunction;
-        private Func<double, double, double> lossFunctionDerivative;
+        [ProtoMember(3)]
+        private List<Layer> layers;
+        [ProtoMember(4)]
+        public Func<double[], double[], double> lossFunction;
+        [ProtoMember(5)]
+        public Func<double, double, double> lossFunctionDerivative;
 
+        public StudentNetwork()
+        {
+        }
+
+        public static StudentNetwork readFromFile(string filename)
+        {
+            Neuron.activationFunction = s => 1.0 / (1.0 + Math.Exp(-s));
+            Neuron.activationFunctionDerivative = s => s * (1 - s);
+            StudentNetwork network;
+            using (MemoryStream memStream = new MemoryStream())
+            {
+                var arrBytes = File.ReadAllBytes(filename);
+                memStream.Write(arrBytes, 0, arrBytes.Length);
+                memStream.Seek(0, SeekOrigin.Begin);
+                network = Serializer.Deserialize<StudentNetwork>(memStream);
+            }
+            return network;
+        }
         public StudentNetwork(int[] structure)
         {
             if (structure.Length < 3)
             {
-                throw new ArgumentException("Слишком мало слоев");
+                throw new ArgumentException("Сетка из 0 слоёв это круто, но не пойдёт");
             }
 
             lossFunction = (output, aim) =>
@@ -85,9 +158,9 @@ namespace NeuralNetwork1
                     res += Math.Pow(aim[i] - output[i], 2);
                 }
 
-                return res * 0.5; // / для получения среднеквадратичной ошибки MSE
+                return res * 0.5; // / n to become MSE
             };
-            // производная            
+
             lossFunctionDerivative = (output, aim) => aim - output;
 
             Neuron.activationFunction = s => 1.0 / (1.0 + Math.Exp(-s));
@@ -98,22 +171,19 @@ namespace NeuralNetwork1
             biasNeuron = new Neuron(0, -1, -1, random);
             int id = 1;
 
-            layers = new List<Neuron[]>();
+            layers = new List<Layer>();
 
             for (int layer = 0; layer < structure.Length; layer++)
             {
-                //массив нейронов для текущего слоя 
-                layers.Add(new Neuron[structure[layer]]);
-                //Для каждого нейрона в текущем слое
+                layers.Add(new Layer(structure[layer]));
                 for (int i = 0; i < structure[layer]; i++)
                 {
-                    //слой входных нейронов
                     if (layer == 0)
                     {
                         layers[layer][i] = new Neuron(id, layer, -1, random);
                         continue;
                     }
-                    //количеством входов равно количеству нейронов в предыдущем слое structure
+
                     layers[layer][i] = new Neuron(id, layer, structure[layer - 1], random);
 
                     id++;
@@ -121,30 +191,34 @@ namespace NeuralNetwork1
             }
         }
 
-        // выполняет прямое распространение сигнала по сети. Принимает входные данные input и
-        // устанавливает значения активаций нейронов входного слоя. Затем происходит вычисление
-        // активаций нейронов остальных слоев.
+
         public void forwardPropagation(double[] input)
         {
             if (input.Length != layers[0].Length)
             {
-                throw new ArgumentException("Недопустимый входной массив");
+                throw new ArgumentException("Вы мне подсунули какой-то странный входной массив.");
             }
 
-            // Копирование входных данных от сенсоров в выходы нейронов первого слоя:
+            // Копируем наши данные от сенсоров сразу в их output
             for (int i = 0; i < layers[0].Length; i++)
             {
                 layers[0][i].setInput(input[i]);
             }
-            //Для каждого слоя от второго до последнего
+
             for (int layer = 1; layer < layers.Count; layer++)
             {
-                Parallel.For(0, layers[layer].Length, neuron =>
+                for (int neuron = 0; neuron < layers[layer].Length; neuron++) // TODO Parallel
                 {
-                    // Считаем скалярное произведение между выходами нейронов 
-                    // предыдущего слоя и их весами, взвешенными для текущего нейрона.
+                    // Считаем скалярное произведение от предыдущих нейрончиков
                     double scalar = 0;
-                    // перебираем веса текущего нейрона для каждого нейрона предыдущего слоя.
+                    // foreach (var prevNeuron in layers[layer - 1])
+                    // {
+                    //     scalar += prevNeuron.Output * weights[prevNeuron.id][layers[layer][neuron].id];
+                    // }
+                    //
+                    // // Добавялем к этому произведению bias
+                    // scalar += biasNeuron.Output * weights[biasNeuron.id][layers[layer][neuron].id];
+
                     for (int i = 0; i < layers[layer][neuron].weightsToPrevLayer.Length; i++)
                     {
                         // Обрабатываем bias
@@ -154,47 +228,50 @@ namespace NeuralNetwork1
                             continue;
                         }
 
-                        // вычисляется произведение взвешенного выхода нейрона
-                        // предыдущего слоя и веса и добавляется к скаляру
+                        // Страшно, но как есть - на предыдущем слое нейроны o..Length, в векторе весов нашего нейрона - 1..Length+1
                         scalar += layers[layer - 1][i - 1].Output * layers[layer][neuron].weightsToPrevLayer[i];
                     }
 
-                    // скаляр становится входом для текущего нейрона
+                    // Получили наш вход
                     layers[layer][neuron].setInput(scalar);
-                    //}
-                });
+                }
             }
         }
 
-        //выполняет обратное распространение ошибки через сеть. Принимает образец sample с целевым
-        //выходом и вычисляет ошибку для каждого нейрона в каждом слое. Затем происходит корректировка
-        //весов нейронов с использованием градиентного спуска.
         public void backwardPropagation(Sample sample)
         {
-            // Получение целевого вектора ожидаемых выходных данных для обучающего примера sample
             var aim = sample.outputVector;
-
             // Для выходного слоя применяем производную лосс-функции
-            //для каждого нейрона в последнем слое
-            Parallel.For(0, layers.Last().Length, i =>
+            for (var i = 0; i < layers.Last().Length; i++)
             {
                 layers.Last()[i].error = lossFunctionDerivative(layers.Last()[i].Output, aim[i]);
-            });
-            // для каждого нейрона остальных слоев
+            }
+
             for (int layer = layers.Count - 1; layer >= 1; layer--)
             {
-                Parallel.ForEach(layers[layer], neuron =>
+                for (int k = 0; k < layers[layer].Length; k++)
                 {
+                    var neuron = layers[layer][k];
                     // Применяем производную функции активации
                     neuron.error *= Neuron.activationFunctionDerivative(neuron.Output);
 
+                    // // Считаем страшную сумму ошибок для предыдущего слоя и меняем веса
+                    // foreach (var prevNeuron in layers[layer - 1])
+                    // {
+                    //     prevNeuron.error += neuron.error * weights[prevNeuron.id][neuron.id];
+                    //     weights[prevNeuron.id][neuron.id] += learningRate * neuron.error * prevNeuron.Output;
+                    // }
+                    //
+                    // // Нельзя забывать про малыша bias!!!
+                    // biasNeuron.error += neuron.error * weights[biasNeuron.id][neuron.id];
+                    // weights[biasNeuron.id][neuron.id] += learningRate * neuron.error * biasNeuron.Output;
+
                     for (int i = 0; i < neuron.weightsToPrevLayer.Length; i++)
                     {
-                        // bias
+                        // Нельзя забывать про малыша bias!!!
                         if (i == 0)
                         {
                             biasNeuron.error += neuron.error * neuron.weightsToPrevLayer[0];
-                            // обновляем вес, добавляя шаг обучения
                             neuron.weightsToPrevLayer[0] += learningRate * neuron.error * biasNeuron.Output;
                             continue;
                         }
@@ -203,111 +280,42 @@ namespace NeuralNetwork1
                         neuron.weightsToPrevLayer[i] += learningRate * neuron.error * layers[layer - 1][i - 1].Output;
                     }
 
-                    // Сброс ошибки нейронов
+                    // Мы прогнали ошибку дальше, откатываемся к изначальному виду
                     neuron.error = 0;
-                });
-            }
-        }
-        //выполняет обучение сети на одном образце sample до достижения заданной допустимой ошибки acceptableError. 
-        public override int Train(Sample sample, double acceptableError, bool parallel)
-        {
-            int cnt = 0;
-            while (true)
-            {
-                cnt++;
-                //получение прогноза выходных данных
-                forwardPropagation(sample.input);
-                //Проверка условия остановки обучения
-                if (lossFunction(layers.Last().Select(n => n.Output).ToArray(), sample.outputVector) <=
-                    acceptableError || cnt > 50)
-                {
-                    return cnt;
-                }
-                if (parallel)
-                {
-                    Parallel.Invoke(() =>
-                    {
-                        backwardPropagation(sample);
-                    });
-                }
-                else
-                {
-                    backwardPropagation(sample);
                 }
             }
         }
 
-        //выполняет одну итерацию обучения нейронной сети на одном образце sample, вычисляет и возвращает ошибку
         double TrainOnSample(Sample sample, double acceptableError)
         {
-
             double loss;
-            //получение прогноза выходных данных
             forwardPropagation(sample.input);
-            // Вычисление значения ошибки
             loss = lossFunction(layers.Last().Select(n => n.Output).ToArray(), sample.outputVector);
-            //Обратное распространение ошибки для обновления весов и смещений в нейронной сети на основе значения ошибки
             backwardPropagation(sample);
-            //возвращение значения ошибки
             return loss;
         }
 
-        //выполняет обучение на наборе образцов samplesSet в течение заданного количества эпох epochsCount
-        public override double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError,
-            bool parallel)
-        {
 
-            var start = DateTime.Now;// засекаем время
-            int totalSamplesCount = epochsCount * samplesSet.Count; //общее количество обрабатываемых примеров
-            int processedSamplesCount = 0;
-            double sumError = 0; //суммарная ошибка
-            double mean;//средняя ошибка
-            // для каждой эпохи
-            for (int epoch = 0; epoch < epochsCount; epoch++)
-            {
-                // для каждого сэмпла
-                for (var index = 0; index < samplesSet.samples.Count; index++)
-                {
-                    var sample = samplesSet.samples[index];
-                    sumError += TrainOnSample(sample, acceptableError);// добавляем новую ошибку обучения к суммарной ошибке
-                    // Увеличение счетчика обработанных примеров
-                    processedSamplesCount++;
-                    // выводим информацию о процессе обучения
-                    if (index % 100 == 0)
-                    {
-                        // Выводим среднюю ошибку для обработанного
-                        OnTrainProgress(1.0 * processedSamplesCount / totalSamplesCount,
-                            sumError / (epoch * samplesSet.Count + index + 1), DateTime.Now - start);
-                    }
-                }
-                // Расчет средней ошибки для текущей эпохи
-                mean = sumError / ((epoch + 1) * samplesSet.Count + 1);
-                //Если средняя ошибка меньше или равна допустимой
-                if (mean <= acceptableError)
-                {
-                    // выводим информацию о процессе обучения
-                    OnTrainProgress(1.0, mean, DateTime.Now - start);
-                    return mean;
-                }
-            }
-            //средняя ошибка для всего обучающего набора данных
-            mean = sumError / (epochsCount * samplesSet.Count + 1);
-            // выводим информацию о процессе обучения
-            OnTrainProgress(1.0, mean, DateTime.Now - start);
-            //возвращается средняя ошибка 
-            return sumError / (epochsCount * samplesSet.Count);
-        }
 
-        protected override double[] Compute(double[] input)
+        public double[] Compute(double[] input)
         {
             if (input.Length != layers[0].Length)
             {
-                throw new ArgumentException("Недопустимый входной массив");
+                throw new ArgumentException("У вас тут данных многовато...");
             }
-            // прогноз выходных данных
+
             forwardPropagation(input);
-            // Возвращение выходного вектора последнего слоя нейронной сети
             return layers.Last().Select(n => n.Output).ToArray();
         }
+
+        public void save(string filename)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                Serializer.Serialize(ms, this);
+                File.WriteAllBytes(filename, ms.ToArray());
+            }
+        }
     }
+
 }
