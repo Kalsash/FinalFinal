@@ -119,7 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccordNet.cs" />
-    <Compile Include="AIMLBotik.cs" />
+    <Compile Include="AIMLService.cs" />
     <Compile Include="BaseNetwork.cs" />
     <Compile Include="Camera.cs">
       <SubType>Form</SubType>
@@ -141,7 +141,7 @@
     <Compile Include="StudentNetwork.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TLGBotik.cs" />
+    <Compile Include="TelegramService.cs" />
     <EmbeddedResource Include="Camera.resx">
       <DependentUpon>Camera.cs</DependentUpon>
     </EmbeddedResource>

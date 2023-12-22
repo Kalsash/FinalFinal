@@ -22,10 +22,10 @@ namespace NeuralNetwork1
         //GenerateImage generator = new GenerateImage();
         private DatasetProcessor dataset = new DatasetProcessor();
 
-        AIMLBotik botik = new AIMLBotik();
+        AIMLService botik = new AIMLService();
         BaseNetwork net = null;
         AccordNet AccordNet = null;
-        TLGBotik tlgBot ;
+        TelegramService tlgBot ;
         /// <summary>
         /// Текущая выбранная через селектор нейросеть
         /// </summary>
@@ -51,7 +51,7 @@ namespace NeuralNetwork1
         public NeuralNetworksStand(Dictionary<string, Func<int[], BaseNetwork>> networksFabric)
         {
             InitializeComponent();
-            tlgBot = new TLGBotik(net, new UpdateTLGMessages(UpdateTLGInfo));
+            tlgBot = new TelegramService(net, new UpdateTLGMessages(UpdateTLGInfo));
             this.networksFabric = networksFabric;
             netTypeBox.Items.AddRange(this.networksFabric.Keys.Select(s => (object) s).ToArray());
             netTypeBox.SelectedIndex = 0;
