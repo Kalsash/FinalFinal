@@ -24,6 +24,8 @@ namespace NeuralNetwork1
 
         private BaseNetwork perseptron = null;
         private DatasetProcessor dataset = new DatasetProcessor();
+
+        private MagicEye Processor;
         // CancellationToken - инструмент для отмены задач, запущенных в отдельном потоке
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
         public TLGBotik(BaseNetwork net, UpdateTLGMessages updater)
@@ -57,12 +59,9 @@ namespace NeuralNetwork1
                 var img = System.Drawing.Image.FromStream(imageStream);
 
                 System.Drawing.Bitmap bm = new System.Drawing.Bitmap(img);
-
-                //  Масштабируем aforge
-                AForge.Imaging.Filters.ResizeBilinear scaleFilter = new AForge.Imaging.Filters.ResizeBilinear(300, 300);
-                var uProcessed = scaleFilter.Apply(AForge.Imaging.UnmanagedImage.FromManagedImage(bm));
-                Sample sample = dataset.getSample(uProcessed.ToManagedImage());
-                var p = perseptron.Predict(sample);
+                Processor = new MagicEye(perseptron, dataset);
+                Processor.ProcessImage(bm);
+                var p = Processor.currentType;
                 formUpdater(DatasetProcessor.LetterTypeToString(p));
                 formUpdater("Picture recognized!");
                 return;

@@ -93,6 +93,10 @@ namespace NeuralNetwork1
         public MagicEye()
         {
         }
+        public MagicEye(DatasetProcessor dataset)
+        {
+            this.dataset = dataset;
+        }
 
         public bool ProcessImage(Bitmap bitmap)
         {
@@ -100,7 +104,8 @@ namespace NeuralNetwork1
 
             //  Минимальная сторона изображения (обычно это высота)
             if (bitmap.Height > bitmap.Width)
-                throw new Exception("К такой забавной камере меня жизнь не готовила!");
+                //throw new Exception("К такой забавной камере меня жизнь не готовила!");
+                return false;
             //  Можно было, конечено, и не кидаться эксепшенами в истерике, но идите и купите себе нормальную камеру!
             int side = bitmap.Height;
 
@@ -148,7 +153,7 @@ namespace NeuralNetwork1
             threshldFilter.ApplyInPlace(uProcessed);
 
 
-            if (settings.processImg)
+            if (0==0)
             {
 
                 string rez = "Обработка";
