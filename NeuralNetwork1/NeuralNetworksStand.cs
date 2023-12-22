@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace NeuralNetwork1
 {
@@ -121,13 +122,14 @@ namespace NeuralNetwork1
                 pictureBox1.Enabled = true;
                 StatusLabel.Text = "Ошибка: " + f;
                 StatusLabel.ForeColor = Color.Green;
+                tlgBot.SetNet(Net, dataset);
                 return f;
             }
             catch (Exception e)
             {
                 label1.Text = $"Исключение: {e.Message}";
             }
-
+          
             return 0;
         }
 
@@ -166,12 +168,8 @@ namespace NeuralNetwork1
                     "Ошибка", MessageBoxButtons.OK);
                 return;
             }
-            AccordNet = new AccordNet(structure);
-            AccordNet.TrainProgress -= UpdateLearningInfo;
 
-            net = AccordNet;
-
-            tlgBot.SetNet(net);
+            tlgBot.SetNet(net, dataset);
             // Чистим старые подписки сетей
             foreach (var network in networksCache.Values)
                 network.TrainProgress -= UpdateLearningInfo;

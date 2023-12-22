@@ -39,6 +39,13 @@ namespace NeuralNetwork1
         public void SetNet(BaseNetwork net)
         {
             perseptron = net;
+            Processor = new MagicEye(perseptron, dataset);
+            formUpdater("Net updated!");
+        }
+        public void SetNet(BaseNetwork net, DatasetProcessor dataset)
+        {
+            perseptron = net;
+            Processor = new MagicEye(perseptron, dataset);
             formUpdater("Net updated!");
         }
 
@@ -59,7 +66,7 @@ namespace NeuralNetwork1
                 var img = System.Drawing.Image.FromStream(imageStream);
 
                 System.Drawing.Bitmap bm = new System.Drawing.Bitmap(img);
-                Processor = new MagicEye(perseptron, dataset);
+                
                 Processor.ProcessImage(bm);
                 var p = Processor.currentType;
                 formUpdater(DatasetProcessor.LetterTypeToString(p));
