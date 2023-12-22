@@ -59,10 +59,11 @@ namespace NeuralNetwork1
                 System.Drawing.Bitmap bm = new System.Drawing.Bitmap(img);
 
                 //  Масштабируем aforge
-                AForge.Imaging.Filters.ResizeBilinear scaleFilter = new AForge.Imaging.Filters.ResizeBilinear(200, 200);
-                //var uProcessed = scaleFilter.Apply(AForge.Imaging.UnmanagedImage.FromManagedImage(bm));
-                //Sample sample = dataset.getSample(uProcessed.ToManagedImage());
-                //perseptron.Predict(sample);
+                AForge.Imaging.Filters.ResizeBilinear scaleFilter = new AForge.Imaging.Filters.ResizeBilinear(300, 300);
+                var uProcessed = scaleFilter.Apply(AForge.Imaging.UnmanagedImage.FromManagedImage(bm));
+                Sample sample = dataset.getSample(uProcessed.ToManagedImage());
+                var p = perseptron.Predict(sample);
+                formUpdater(DatasetProcessor.LetterTypeToString(p));
                 formUpdater("Picture recognized!");
                 return;
             }
