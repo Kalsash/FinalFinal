@@ -112,14 +112,6 @@ cancellationToken: cts.Token);
                         cancellationToken: cancellationToken);
                     return;
                 }
-                //if (messageText == "/start")
-                //{
-                //    await botClient.SendTextMessageAsync(
-                //    chatId: chatId,
-                //    text: "Для того, чтобы посмотреть список доступных команд введите /help",
-                //    cancellationToken: cancellationToken);
-                //    return;
-                //}
                 if (messageText == "/help")
                 {
                     await botClient.SendTextMessageAsync(
@@ -206,8 +198,16 @@ cancellationToken: cts.Token);
             if (message.Type == Telegram.Bot.Types.Enums.MessageType.Photo)
             {
                 formUpdater("Picture loadining started");
+                if (dialogMode[chatId] != ChatMode.RECOGNIZING)
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Для распознавания по фото, нужно применить команду /morse",
+                        cancellationToken: cancellationToken);
+                    return;
+                }
                 var photoId = message.Photo.Last().FileId;
-                Telegram.Bot.Types.File fl = client.GetFileAsync(photoId).Result;
+                Telegram.Bot.Types.File fl = await client.GetFileAsync(photoId, cancellationToken: cancellationToken);
                 var imageStream = new MemoryStream();
                 await client.DownloadFileAsync(fl.FilePath, imageStream, cancellationToken: cancellationToken);
                 var img = System.Drawing.Image.FromStream(imageStream);
@@ -215,14 +215,31 @@ cancellationToken: cts.Token);
                 System.Drawing.Bitmap bm = new System.Drawing.Bitmap(img);
                 
                 Processor.ProcessImage(bm);
-                var p = Processor.currentType;
-                formUpdater(DatasetProcessor.LetterTypeToString(p));
+                var p = DatasetProcessor.LetterTypeToString(Processor.currentType);
+                await botClient.SendTextMessageAsync(
+                     chatId: chatId,
+                     text: aimlService.Talk(chatId, username, $"предсказываю {p}"),
+                     cancellationToken: cancellationToken);
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: aimlService.Talk(chatId, username, $"жду правду"),
+                    cancellationToken: cancellationToken);
+                lastRecognizedLetter = p;
+                //formUpdater(DatasetProcessor.LetterTypeToString(p));
                 formUpdater("Picture recognized!");
                 return;
             }
 
-            //if (message == null || message.Type != MessageType.Text) return;
-           // client.SendTextMessageAsync(message.Chat.Id, "Bot reply : " + message.Text);
+            if (message.Type == MessageType.Video)
+            {
+                await client.SendTextMessageAsync(message.Chat.Id, aimlService.Talk(chatId, username, "Видео"), cancellationToken: cancellationToken);
+                return;
+            }
+            if (message.Type == MessageType.Audio)
+            {
+                await client.SendTextMessageAsync(message.Chat.Id, aimlService.Talk(chatId, username, "Аудио"), cancellationToken: cancellationToken);
+                return;
+            }
             formUpdater(message.Text);
             return;
         }
