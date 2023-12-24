@@ -33,6 +33,7 @@ namespace NeuralNetwork1
         private BaseNetwork perseptron = null;
         private DatasetProcessor dataset = new DatasetProcessor();
         private string lastRecognizedLetter = "none";
+        public bool IsNet = true;
 
         Dictionary<long, ChatMode> dialogMode;
         public string Username { get; }
@@ -214,10 +215,12 @@ cancellationToken: cts.Token);
                 var img = System.Drawing.Image.FromStream(imageStream);
 
                 System.Drawing.Bitmap bm = new System.Drawing.Bitmap(img);
-                
-               // Processor.ProcessImage(bm);
-                //var p = DatasetProcessor.LetterTypeToString(Processor.currentType);
-                var p = DatasetProcessor.LetterTypeToString(networkService.predict(bm));
+                var p = "";
+                //if (Processor.ProcessImage(bm) && IsNet)
+                //     p = DatasetProcessor.LetterTypeToString(Processor.currentType);
+                //else
+                //    p = DatasetProcessor.LetterTypeToString(networkService.predict(bm));
+                p = DatasetProcessor.LetterTypeToString(networkService.predict(bm));
                 await botClient.SendTextMessageAsync(
                      chatId: chatId,
                      text: aimlService.Talk(chatId, username, $"предсказываю {p}"),

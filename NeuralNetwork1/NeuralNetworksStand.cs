@@ -86,7 +86,6 @@ namespace NeuralNetwork1
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
             var fullSample = dataset.getSample();
-
             Net.Predict(fullSample.Item1);
             
             label1.ForeColor = fullSample.Item1.Correct() ? Color.Green : Color.Red;
@@ -122,7 +121,9 @@ namespace NeuralNetwork1
                 pictureBox1.Enabled = true;
                 StatusLabel.Text = "Ошибка: " + f;
                 StatusLabel.ForeColor = Color.Green;
-                tlgBot.SetNet(Net, dataset);
+                if (netTypeBox.Text == "Студенческий персептрон")
+                    tlgBot.IsNet = false;
+                    tlgBot.SetNet(Net, dataset);
                 return f;
             }
             catch (Exception e)
