@@ -23,7 +23,7 @@ namespace NeuralNetwork1
         RECOGNIZING,
         CHOOSING
     };
-    class TelegramService
+    class TelegramService : IDisposable
     {
         public Telegram.Bot.TelegramBotClient client = null;
 
@@ -51,11 +51,11 @@ namespace NeuralNetwork1
             perseptron = net;
             networkService = new NeuralNetworkService();
             dialogMode = new Dictionary<long, ChatMode>();
-            client.StartReceiving(HandleUpdateMessageAsync, HandleErrorAsync, new ReceiverOptions
-            {   // Подписываемся только на сообщения
-                AllowedUpdates = new[] { UpdateType.Message }
-            },
-cancellationToken: cts.Token);
+//            client.StartReceiving(HandleUpdateMessageAsync, HandleErrorAsync, new ReceiverOptions
+//            {   // Подписываемся только на сообщения
+//                AllowedUpdates = new[] { UpdateType.Message }
+//            },
+//cancellationToken: cts.Token);
             // Пробуем получить логин бота - тестируем соединение и токен
             Username = client.GetMeAsync().Result.Username;
         }
@@ -276,11 +276,11 @@ cancellationToken: cts.Token);
             }
             return true;
         }
-
-        public void Stop()
+        public void Dispose()
         {
+            // Заканчиваем работу - корректно отменяем задачи в других потоках
+            // Отменяем токен - завершатся все асинхронные таски
             cts.Cancel();
         }
-
     }
 }
