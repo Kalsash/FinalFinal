@@ -122,7 +122,8 @@ namespace NeuralNetwork1
                         "1) Для распознавания по фото введите команду /morse \n " +
                         "2) Для возвращения в режим разговора введите ключевое слово \"стоп\" \n" +
                         "3)Для перехода в режим рассказа историй введите команду /story \n" +
-                        "4) Если забудете какую-нибудь из команд введите команду /help, и я буду рад помочь вам снова)",
+                        "4) Для того, чтобы узнать, кто я введите команду /about\n" +
+                        "5) Если забудете какую-нибудь из команд введите команду /help, и я буду рад помочь вам снова)",
                         cancellationToken: cancellationToken);
                     return;
                 }
@@ -138,7 +139,16 @@ namespace NeuralNetwork1
                         cancellationToken: cancellationToken);
                     return;
                 }
-
+                if (messageText == "/about")
+                {
+                    lastRecognizedLetter = "none";
+                    dialogMode[chatId] = ChatMode.RECOGNIZING;
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Я чат-бот, умею болтать на простые темы, а ещё могу распознать (правда не очень точно) азбуку Морзе. Если хочешь узнать обо мне больше, то просто спрашивай",
+                        cancellationToken: cancellationToken);
+                    return;
+                }
                 if (dialogMode[chatId] == ChatMode.CHATTING)
                 {
                     await botClient.SendTextMessageAsync(
