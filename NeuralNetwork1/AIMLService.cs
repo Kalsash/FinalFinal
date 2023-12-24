@@ -20,7 +20,7 @@ namespace NeuralNetwork1
             bot.loadAIMLFromFiles();
             bot.isAcceptingUserInput = true;
         }
-
+         
         public string Talk(long userId, string userName, string phrase)
         {
             var result = "";
