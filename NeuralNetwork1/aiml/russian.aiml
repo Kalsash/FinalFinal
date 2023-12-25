@@ -1040,11 +1040,64 @@
 </category>
 
 <category>
+        <pattern>РАССКАЖИ О МУЗЫКЕ</pattern>
+        <template>
+            <random>
+                <li>Мне нравится Linkin Park
+					Хотите я вам спою?</li>
+				<li>Skillet отличная группа</li>
+				<li>РОК ЖИВ</li>
+				<li>Люблю знаете ли помузицировать</li>
+            </random>
+        </template>
+</category>
+
+<category>
+        <pattern>ПОПОДРОБНЕЕ О МУЗЫКЕ</pattern>
+        <template>
+            <random>
+                <li>Ну я фанат рока так-то. А вы?</li>
+				<li>Мне нравится английский и американский рок. А вам?</li>
+				<li>Знаешь, вот люблю энергичную такую музыку. А что насчет вас?</li>
+            </random>
+        </template>
+</category>
+<category>
+        <pattern>ПРОДОЛЖАЙ/pattern>
+        <template>
+		<that>РОК ЖИВ</that>
+            <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
+        </template>
+</category>
+<category>
+        <pattern>ПРОДОЛЖАЙ/pattern>
+        <template>
+		<that>Skillet отличная группа</that>
+            <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
+        </template>
+</category>
+<category>
+        <pattern>ПРОДОЛЖАЙ/pattern>
+        <template>
+		<that>Мне нравится Linkin Park
+					Хотите я вам спою?</that>
+            <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
+        </template>
+</category>
+<category>
+        <pattern>ПРОДОЛЖАЙ/pattern>
+        <template>
+		<that>Люблю знаете ли помузицировать</that>
+            <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
+        </template>
+</category>
+<category>
         <pattern>МУЗЫКА</pattern>
         <template>
             <srai>РАССКАЖИ О МУЗЫКЕ</srai>
         </template>
 </category>
+
 <category>
         <pattern>МУЗЫКЕ</pattern>
         <template>
