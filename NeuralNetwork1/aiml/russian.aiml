@@ -118,7 +118,7 @@
                     <li>Радиолюбители утверждают, что на изучение азбуки Морзе не уйдет много времени. Почти каждый человек за срок от двух до шести месяцев может освоить передачу сообщений со скоростью 70-90 слов в минуту.</li>
                     <li>В школах авиации азбуку Морзе изучают на обязательной основе, так как это самый доступный способ передать информацию в случае выхода техники из строя. Также азбуку Морзе изучают в некоторых военных училищах.</li>
                     <li>Первое сообщение, закодированное с помощью азбуки Морзе, было отправлено 24 мая 1844 года в Балтимор из Вашингтона. Сообщение представляло из себя последнюю строчку библейского стихотворения, которая в переводе на русский язык означает «Вот что творит Господь».</li>
-                    <li>Система кодирования начала называться азбукой Морзе после Первой Мировой войны, от трех до шести месяцев.</li>
+                    <li>Система кодирования начала называться азбукой Морзе после Первой Мировой войны, когда и начала широко использоваться.</li>
                     <li>В системе кодирования единица времени — это длительность звучания одной точки. К примеру, длительность тире равна трем точкам.</li>
                     <li>Паузы также передаются точками. Например, пробел между элементами одного символа выглядит как одна точка (занимает столько же времени, сколько длится передача точки), между символами в слове — 3 точки, а между словами — 7 точек.</li>
                     <li>Для ускорения радиообмена было создано огромное количество аббревиатур, жаргонизмов и так называемых Q -кодов, причем свои есть у каждого языка. Например, GM , GА , GE и GN — для английского это good morning , good afternoon , good evening и good night (пожелания доброго утра, дня, вечера и ночи) соответственно. Для русского — ЗДР, то есть «здравствуйте». PSE (от please ) — «пожалуйста»; R (от received ) — «вас понял», «принято». Есть и числовые коды, например 73 означает наилучшие пожелания, а 88 — поцелуй.</li>
@@ -259,16 +259,18 @@
             <pattern>*</pattern>
             <template>
                 <random>
-                    <li>Вы любите азбуку морзе?</li>
+                    <li>Еще один факт: <srai>факт</srai></li>
                     <li>_._ ._ _._ _.. . ._.. _.</li>
-                    <li>Не знаю. Лучше вот вам интересный факт: <srai>факт</srai></li>
-                    <li>Я сейчас настроен только на разговоры о Морзе</li>
-                    <li>Не забывайте про стоп-слово...</li>
-                    <li>Надеюсь вы ещё не утомились слушать про морзе?</li>
+                    <li>Вот вам интересный факт: <srai>факт</srai></li>
+                    <li>Для перехода к новой теме, пишите "перестань"</li>
+					<li>Если надоело слушать факты про Морзе, пишите "перестань"</li>
                 </random>
             </template>
         </category>
+		
+		
     </topic>
+
     
   <category>
     <pattern>_ меня зовут *</pattern>
@@ -401,15 +403,11 @@
       <template>
         <random>
           <li>Привет!</li>
-          <li>Ку</li>
-          <li>Кукусики</li>
-          <li>Хаю хай</li>
+		  <li>Добрый день!</li>
           <li>Хеллоу</li>
-          <li>Приветики</li>
-          <li>Привет</li>
-          <li>И тебе привет</li>
+          <li>Приветствую!</li>
           <li>Хай!</li>
-		  <li>Здравстуй!</li>
+		  <li>Здравстуйте!</li>
 		  <li>Здравия желаю!</li>
         </random>
       </template>
@@ -472,12 +470,15 @@
     <template>
         <condition name= "question">
             <li value="морзе">
-           Спрашивайте у меня что угодно про азбуку Морзе, и я постараюсь ответить. Как только надоест, пишите ключевое слово "перестань".
+           Спрашивайте у меня что угодно про азбуку Морзе, и я постараюсь ответить. Как только надоест, пишите ключевое слово "перестань". 
+		   А вот и первый факт:
             <think>
                 <set name="topic">morse</set>
                 <set name="question">unknown</set>
             </think>
+			 <srai>факт</srai>
             </li>
+					  
             <li value="unknown">
                 <random>
                     <li>Ура!</li>
@@ -495,7 +496,7 @@
     <template>
         <condition name= "question">
             <li value="морзе">
-                Считай, что ты избежал своей участи. На этот раз...
+               Очень жаль!
             </li>
             <li value="unknown">
                 <random>
@@ -1063,31 +1064,64 @@
         </template>
 </category>
 <category>
-        <pattern>ПРОДОЛЖАЙ/pattern>
-        <template>
+        <pattern>ПРОДОЛЖАЙ</pattern>
 		<that>РОК ЖИВ</that>
+        <template>
             <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
         </template>
 </category>
 <category>
-        <pattern>ПРОДОЛЖАЙ/pattern>
+      <pattern>ПРОДОЛЖАЙ</pattern>
+	  		<that>Skillet отличная группа</that>
         <template>
-		<that>Skillet отличная группа</that>
             <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
         </template>
 </category>
 <category>
-        <pattern>ПРОДОЛЖАЙ/pattern>
-        <template>
-		<that>Мне нравится Linkin Park
+       <pattern>ПРОДОЛЖАЙ</pattern>
+	   		<that>Мне нравится Linkin Park
 					Хотите я вам спою?</that>
+        <template>
             <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
         </template>
 </category>
 <category>
-        <pattern>ПРОДОЛЖАЙ/pattern>
+       <pattern>ПРОДОЛЖАЙ</pattern>
+	   	<that>Люблю знаете ли помузицировать</that>
         <template>
-		<that>Люблю знаете ли помузицировать</that>
+            <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
+        </template>
+</category>
+
+
+
+
+<category>
+        <pattern>ПОДРОБНЕЕ</pattern>
+		<that>РОК ЖИВ</that>
+        <template>
+            <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
+        </template>
+</category>
+<category>
+      <pattern>ПОДРОБНЕЕ</pattern>
+	  		<that>Skillet отличная группа</that>
+        <template>
+            <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
+        </template>
+</category>
+<category>
+       <pattern>ПОДРОБНЕЕ</pattern>
+	   		<that>Мне нравится Linkin Park
+					Хотите я вам спою?</that>
+        <template>
+            <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
+        </template>
+</category>
+<category>
+       <pattern>ПОДРОБНЕЕ</pattern>
+	   	<that>Люблю знаете ли помузицировать</that>
+        <template>
             <srai>ПОПОДРОБНЕЕ О МУЗЫКЕ</srai>
         </template>
 </category>
@@ -1246,4 +1280,70 @@
             <li>Эх, злые Вы!</li>
         </template>
 </category>
+
+        <category>
+            <pattern>распознавание</pattern>
+            <template>
+                <condition name= "morsesym" value="а">.- ай-даа Анна</condition>
+                <condition name= "morsesym" value="б">-... баа-ки-те-кут Борис</condition>
+                <condition name= "morsesym" value="в">.-- ви-даа-лаа Василий</condition>
+                <condition name= "morsesym" value="г">--. гаа-гаа-рин Григорий</condition>
+                <condition name= "morsesym" value="д">-.. доо-ми-ки Дмитрий</condition>
+                <condition name= "morsesym" value="е">. есть Елена</condition>
+                <condition name= "morsesym" value="ж">...- я-бук-ва-жее Женя</condition>
+                <condition name= "morsesym" value="з">--.. заа-каа-ти-ки Зинаида</condition>
+                <condition name= "morsesym" value="и">.. и-ди Иван</condition>
+                <condition name= "morsesym" value="й">.--- и-краат-коо-ее Краткий</condition>
+                <condition name= "morsesym" value="к">-.- каак-де-лаа Константин</condition>
+                <condition name= "morsesym" value="л">.-.. лу-наа-ти-ки Леонид</condition>
+                <condition name= "morsesym" value="м">-- маа-маа Михаил</condition>
+                <condition name= "morsesym" value="н">-. наа-те Николай</condition>
+                <condition name= "morsesym" value="о">--- оо-коо-лоо Ольга</condition>
+                <condition name= "morsesym" value="п">.--. пи-лаа-поо-ёт Павел</condition>
+                <condition name= "morsesym" value="р">.-. ре-шаа-ет Роман</condition>
+                <condition name= "morsesym" value="с">... са-мо-лёт Семён</condition>
+                <condition name= "morsesym" value="т">- таак Татьяна</condition>
+                <condition name= "morsesym" value="у">..- у-нес-лаа Ульяна</condition>
+                <condition name= "morsesym" value="ф">..-. фи-ли-моон-чик Фёдор</condition>
+                <condition name= "morsesym" value="х">.... хи-ми-чи-те Харитон</condition>
+                <condition name= "morsesym" value="ц">-.-. цаа-пля-цаа-пля Цапля</condition>
+                <condition name= "morsesym" value="ч">---. чее-лоо-вее-чек Человек</condition>
+                <condition name= "morsesym" value="ш">---- шаа-роо-ваа-рыы Шура</condition>
+                <condition name= "morsesym" value="щ">--.- щаа-ваам-не-шаа Щука</condition>
+                <condition name= "morsesym" value="ь">-..- тоо-мяг-кий-знаак Знак</condition>
+                <condition name= "morsesym" value="ы">-.-- ыы-не-наа-доо Еры</condition>
+                <condition name= "morsesym" value="э">..-.. э-ле-роо-ни-ки Эхо</condition>
+                <condition name= "morsesym" value="ю">..-- ю-ли-аа-наа Юрий</condition>
+                <condition name= "morsesym" value="я">.-.- я-маал-я-маал Яна</condition>
+            </template>
+        </category>
+
+        <category>
+            <pattern>буква *</pattern>
+            <template>
+                <think><set name="morsesym"><star/></set> </think>
+                Смотрите:  <srai>распознавание</srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>как выглядит буква *</pattern>
+            <template>
+                <srai>буква <star/></srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>как звучит буква *</pattern>
+            <template>
+                <srai>буква <star/></srai>
+            </template>
+        </category>
+
+        <category>
+            <pattern>покажи букву *</pattern>
+            <template>
+                <srai>буква <star/></srai>
+            </template>
+        </category>
 </aiml>
