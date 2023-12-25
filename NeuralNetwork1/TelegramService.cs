@@ -34,6 +34,9 @@ namespace NeuralNetwork1
         private DatasetProcessor dataset = new DatasetProcessor();
         private string lastRecognizedLetter = "none";
         public bool IsNet = true;
+        public bool IsQuiz = false;
+        public int QuestionNumber = 0;
+        public int RightAnswers = 0;
 
         Dictionary<long, ChatMode> dialogMode;
         public string Username { get; }
@@ -122,8 +125,9 @@ namespace NeuralNetwork1
                         "1) Для распознавания по фото введите команду /morse \n " +
                         "2) Для возвращения в режим разговора введите ключевое слово \"стоп\" \n" +
                         "3)Для перехода в режим рассказа историй введите команду /story \n" +
-                        "4) Для того, чтобы узнать, кто я введите команду /about\n" +
-                        "5) Если забудете какую-нибудь из команд введите команду /help, и я буду рад помочь вам снова)",
+                        "4) Для того, чтобы узнать, кто я, введите команду /about\n" +
+                        "5) Можете проверить свои знания по азбуке Морзе с помощью команды /quiz\n" +
+                        "6) Если забудете какую-нибудь из команд введите команду /help, и я буду рад помочь вам снова)",
                         cancellationToken: cancellationToken);
                     return;
                 }
@@ -139,10 +143,19 @@ namespace NeuralNetwork1
                         cancellationToken: cancellationToken);
                     return;
                 }
+                if (messageText == "/quiz")
+                {
+                    lastRecognizedLetter = "none";
+                    dialogMode[chatId] = ChatMode.CHOOSING;
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Сейчас я задам вам несколько вопросов, чтобы проверить ваши знания по азбуке Морзе. Если вам вдруг надоест отвечать, пишите ключевое слово \"сдаюсь\"",
+                        cancellationToken: cancellationToken);
+                    return;
+                }
                 if (messageText == "/about")
                 {
                     lastRecognizedLetter = "none";
-                    dialogMode[chatId] = ChatMode.RECOGNIZING;
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Я чат-бот, умею болтать на простые темы, а ещё могу распознать (правда не очень точно) азбуку Морзе. Если хочешь узнать обо мне больше, то просто спрашивай",
@@ -157,8 +170,143 @@ namespace NeuralNetwork1
                         cancellationToken: cancellationToken);
                     return;
                 }
+                if (dialogMode[chatId] == ChatMode.CHOOSING)
+                {
+                    string ans = messageText;
 
-                if (dialogMode[chatId] == ChatMode.RECOGNIZING)
+                    if (messageText.ToLower() == "сдаюсь")
+                    {
+                        lastRecognizedLetter = "none";
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Викторину пока завершим и продолжим нашу беседу)",
+                            cancellationToken: cancellationToken);
+                        dialogMode[chatId] = ChatMode.CHATTING;
+                        return;
+                    }
+                    if (ans != "1" && ans != "2" && ans != "3" && ans != "4" && QuestionNumber > 0)
+                    {
+                        await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Неправильный ввод, попробуйте еще раз!",
+                        cancellationToken: cancellationToken);
+                        QuestionNumber--;
+                    }
+
+                    else
+                    {
+                        switch (QuestionNumber)
+                        {
+                            case 1:
+                                if (ans == "2")
+                                    RightAnswers++;
+                                break;
+                            case 2:
+                                if (ans == "1")
+                                    RightAnswers++;
+                                break;
+                            case 3:
+                                if (ans == "4")
+                                    RightAnswers++;
+                                break;
+                            case 4:
+                                if (ans == "3")
+                                    RightAnswers++;
+                                break;
+                            case 5:
+                                if (ans == "1")
+                                    RightAnswers++;
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
+                    if (QuestionNumber == 0)
+                    {
+                        await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Кто создал азбуку Морзе? \n" +
+                            "1)Джон Морзе 2) Сэмюэл Морзе 3)Томас Морзе 4) Лейбниц \n" +
+                            "Для ответа на вопрос просто введите цифру с правильным ответом: ",
+                    cancellationToken: cancellationToken);
+                    }
+                    if (QuestionNumber == 1)
+                    {
+                        await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Чем изначально интересовался создатель азбуки Морзе? \n" +
+                            "1) Живописью 2) Музыкой 3) Хореографией 4) Литературой \n" +
+                            "Для ответа на вопрос просто введите цифру с правильным ответом: ",
+                    cancellationToken: cancellationToken);
+                    }
+                    if (QuestionNumber == 2)
+                    {
+                        await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "В каком году было отправлено первое сообщение, закодированное с помощью азбуки Морзе? \n" +
+                            "1)1841 2) 1842  3) 1843 4) 1844 \n" +
+                            "Для ответа на вопрос просто введите цифру с правильным ответом: ",
+                    cancellationToken: cancellationToken);
+                    }
+                    if (QuestionNumber == 3)
+                    {
+                        await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Сколько времени уйдет на изучение азбуки Морзе по мнению радиолюбителей? \n" +
+                            "1)от трех до шести месяцев 2) т двух до пяти месяцев  3)от двух до шести месяцев 4) от трех до пяти месяцев \n" +
+                            "Для ответа на вопрос просто введите цифру с правильным ответом: ",
+                    cancellationToken: cancellationToken);
+                    }
+                    if (QuestionNumber == 4)
+                    {
+                        await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Когда азбука Морзе начала широко использоваться? \n" +
+                            "1)после Первой Мировой войны 2) после Второй Мировой войны 3) в 18 веке 4) в 19 веке\n" +
+                            "Для ответа на вопрос просто введите цифру с правильным ответом: ",
+                    cancellationToken: cancellationToken);
+                    }
+                    if (QuestionNumber == 5)
+                    {
+                        if (RightAnswers == 5)
+                        {
+                            await botClient.SendTextMessageAsync(
+                              chatId: chatId,
+                              text: RightAnswers.ToString()+ " из 5 правильных ответов. Да вы настоящий знаток Морзе!",
+                              cancellationToken: cancellationToken);
+                        }
+                        if (RightAnswers == 4)
+                        {
+                            await botClient.SendTextMessageAsync(
+                              chatId: chatId,
+                              text: RightAnswers.ToString() + " из 5 правильных ответов. Отличный результат!",
+                              cancellationToken: cancellationToken);
+                        }
+                        if (RightAnswers == 3)
+                        {
+                            await botClient.SendTextMessageAsync(
+                              chatId: chatId,
+                              text: RightAnswers.ToString() + " из 5 правильных ответов. Хороший результат!",
+                              cancellationToken: cancellationToken);
+                        }
+                        if (RightAnswers < 3)
+                        {
+                            await botClient.SendTextMessageAsync(
+                              chatId: chatId,
+                              text: RightAnswers.ToString() + " из 5 правильных ответов. Вам нужно более подробно изучить факты об азбуке Морзе!",
+                              cancellationToken: cancellationToken);
+                        }
+                        dialogMode[chatId] = ChatMode.CHATTING;
+
+                    }
+                        QuestionNumber++;
+
+
+                }
+                   
+
+                    if (dialogMode[chatId] == ChatMode.RECOGNIZING)
                 {
                     if (messageText.ToLower() == "стоп")
                     {
